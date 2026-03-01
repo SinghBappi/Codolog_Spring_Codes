@@ -1,7 +1,6 @@
 package com.example.demo;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,6 +22,17 @@ public class Hi {
 //        ds.setEnd_time();
         mod_apk.add(ds);
         return mod_apk;
+    }
+    //@GetMapping("/aapi")
+
+
+}
+@RestController
+@RequestMapping("/apii")
+class post_api{
+    @PostMapping("/post")
+    public Api createpost(@RequestBody Api api){
+        return new Api(api.getTitle(),api.getBody());
     }
 
 }
