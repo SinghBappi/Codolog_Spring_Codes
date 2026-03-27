@@ -4,7 +4,7 @@ import java.util.List;
 
 
 @RestController
-@RequestMapping("/api/students")
+@RequestMapping("/api/studentsfetch")
 public class StudentController {
     private final StudentRepository studentRepo;
     public StudentController(StudentRepository studentRepo){
