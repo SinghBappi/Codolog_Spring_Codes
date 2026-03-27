@@ -4,8 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 public class DTO {
-//    @Getter
-//    @Setter
+
     private int id;
     private  String isactive;
     private String start_time;

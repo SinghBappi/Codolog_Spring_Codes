@@ -1,0 +1,148 @@
+CREATE TABLE students(name varchar(99));
+INSERT INTO students (name) VALUES('Bappi');
+SELECT * FROM students;
+COMMIT;
+
+-- phele independent table ya entities banayege
+CREATE TABLE course_category (
+    course_cat_id SERIAL PRIMARY KEY,
+    course_cat_desc VARCHAR(255) NOT NULL,
+    created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE course_type (
+    course_type_id SERIAL PRIMARY KEY,
+    course_type_name VARCHAR(100) NOT NULL,
+    is_active BOOLEAN DEFAULT TRUE
+);
+
+CREATE TABLE student (
+    student_id SERIAL PRIMARY KEY,
+    student_name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- phir hum main table banayege course module ka
+CREATE TABLE course (
+    course_id SERIAL PRIMARY KEY,
+    course_name VARCHAR(255) NOT NULL,
+    course_desc TEXT,
+    course_category_id INT REFERENCES course_category(course_cat_id),
+    course_type_id INT REFERENCES course_type(course_type_id),
+    course_duration VARCHAR(50),
+    course_start_date DATE,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Derived tables banayenge
+CREATE TABLE course_topics (
+    course_topic_id SERIAL PRIMARY KEY,
+    course_id INT REFERENCES course(course_id),
+    course_topic_name VARCHAR(255) NOT NULL,
+    sequence INT NOT NULL
+);
+
+CREATE TABLE course_price (
+    course_price_id SERIAL PRIMARY KEY,
+    course_id INT REFERENCES course(course_id),
+    course_price_mrp NUMERIC(10, 2) NOT NULL,
+    course_price_discount NUMERIC(10, 2),
+    coupon_code VARCHAR(50)
+);
+
+CREATE TABLE course_schedule (
+    schedule_id SERIAL PRIMARY KEY,
+    course_id INT REFERENCES course(course_id),
+    instructor_id INT,
+    schedule_name VARCHAR(255),
+    description TEXT,
+    schedule_date DATE,
+    start_time TIME,
+    end_time TIME,
+    meeting_link TEXT,
+    active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE course_rating (
+    rating_id SERIAL PRIMARY KEY,
+    course_id INT REFERENCES course(course_id),
+    rating_count INT DEFAULT 0
+);
+
+-- Daily ka Transxation wale table create karte hai
+CREATE TABLE course_registration (
+    registration_id SERIAL PRIMARY KEY,
+    course_id INT REFERENCES course(course_id),
+    student_id INT REFERENCES student(student_id),
+    payment_status VARCHAR(50),
+    is_course_success BOOLEAN,
+    created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE course_history (
+    course_history_id SERIAL PRIMARY KEY,
+    course_id INT REFERENCES course(course_id),
+    student_id INT REFERENCES student(student_id),
+    created_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (course_id, student_id)
+);
+
+-- Sampling data
+
+-- Categories & Types
+INSERT INTO course_category (course_cat_desc) VALUES
+('Data Science & Analytics'),
+('Software Engineering');
+
+INSERT INTO course_type (course_type_name) VALUES
+('Self-Paced Video'),
+('Live Online Bootcamp');
+
+-- Students
+INSERT INTO student (student_name, email) VALUES
+('Bappi Singh', 'bappi.singh@example.com'),
+('Ratnesh Kumar', 'ratnesh.k@example.com'),
+('Muskan Raman', 'muskan.r@example.com');
+
+-- Courses
+INSERT INTO course (course_name, course_desc, course_category_id, course_type_id, course_duration, course_start_date) VALUES
+('Advanced Python Programming', 'Deep dive into Python for data manipulation.', 1, 1, '8 Weeks', '2026-04-01'),
+('Jetpack Compose UI Masterclass', 'Modern Android development using Kotlin.', 2, 2, '6 Weeks', '2026-04-15'),
+('Relational Databases with SQL', 'Master query writing and database architecture.', 2, 1, '4 Weeks', '2026-04-10');
+
+-- Topics for the Python Course
+INSERT INTO course_topics (course_id, course_topic_name, sequence) VALUES
+(1, 'Introduction to Data Structures', 1),
+(1, 'Object-Oriented Programming in Python', 2),
+(1, 'Data Analysis with Pandas', 3);
+
+-- Pricing
+INSERT INTO course_price (course_id, course_price_mrp, course_price_discount, coupon_code) VALUES
+(1, 4999.00, 500.00, 'EARLYBIRD'),
+(2, 7500.00, 0.00, NULL),
+(3, 3000.00, 200.00, 'SQLPRO');
+
+-- Register a Student for a Course
+INSERT INTO course_registration (course_id, student_id, payment_status, is_course_success) VALUES
+(1, 1, 'COMPLETED', TRUE),
+(3, 2, 'PENDING', FALSE);
+
+-- Add to Course History (Tracking progress)
+INSERT INTO course_history (course_id, student_id) VALUES
+(1, 1);
+
+update student set student_name = 'Muskan Raman Singh' where student_id =3;
+select * from student;
+
+SELECT column_name, data_type, is_nullable, column_default
+FROM information_schema.columns
+WHERE table_name = 'student';
+
