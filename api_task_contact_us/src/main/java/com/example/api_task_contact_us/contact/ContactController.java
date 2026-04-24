@@ -1,9 +1,9 @@
 package com.example.api_task_contact_us.contact;
 
-//package com.example.demo.contact;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -12,65 +12,61 @@ import java.util.List;
 @RequestMapping("/api/contact")
 public class ContactController {
 
-    // 1. Initialize Logger
     private static final Logger logger = LoggerFactory.getLogger(ContactController.class);
-
     private final ContactRepository contactRepository;
 
-    // Constructor Injection
     public ContactController(ContactRepository contactRepository) {
         this.contactRepository = contactRepository;
     }
 
     // ==========================================
-    // 1. GET API - Fetch all messages
+    // 1. GET API
     // ==========================================
     @GetMapping("/all")
-    public List<ContactMessage> getAllMessages() {
+    public ResponseEntity<ApiResponse> getAllMessages() {
         logger.info("GET request received at /api/contact/all");
 
         try {
             List<ContactMessage> messages = contactRepository.findAll();
-            logger.info("Successfully retrieved {} messages from the database.", messages.size());
-            return messages;
+            logger.info("Successfully retrieved {} messages.", messages.size());
+
+            // Keep the data here so the admin can see the list of messages!
+            ApiResponse response = new ApiResponse(HttpStatus.OK.value(), "Messages fetched successfully", messages);
+            return ResponseEntity.ok(response);
+
         } catch (Exception e) {
-            logger.error("Failed to retrieve messages from database. Error: {}", e.getMessage(), e);
-            throw new RuntimeException("Could not fetch messages", e);
+            logger.error("Failed to retrieve messages. Error: {}", e.getMessage());
+            ApiResponse errorResponse = new ApiResponse(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Failed to fetch messages", null);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
     }
 
     // ==========================================
-    // 2. POST API - Submit a new message
+    // 2. POST API
     // ==========================================
     @PostMapping("/submit")
-    public ContactMessage submitContactMessage(@RequestBody ContactMessage newMessage) {
+    public ResponseEntity<ApiResponse> submitContactMessage(@RequestBody ContactMessage newMessage) {
         logger.info("POST request received at /api/contact/submit");
+        logger.info("Processing submission for Email: [{}]", newMessage.getEmail());
 
-        // Log incoming data (excluding the long message body for terminal cleanliness)
-        logger.info("Processing submission for Name: [{}], Email: [{}], Contact: [{}]",
-                newMessage.getFullname(), newMessage.getEmail(), newMessage.getContactno());
-
-        // Step 1: Pre-validation checks for logging purposes
         if (newMessage.getSubject() != null && newMessage.getSubject().length() > 250) {
-            logger.warn("Validation Warning: Subject length ({}) exceeds 250 characters!", newMessage.getSubject().length());
+            logger.warn("Validation Warning: Subject exceeds 250 characters!");
+            ApiResponse badResponse = new ApiResponse(HttpStatus.BAD_REQUEST.value(), "Subject cannot exceed 250 characters.", null);
+            return ResponseEntity.badRequest().body(badResponse);
         }
 
-        if (newMessage.getMessage() != null && newMessage.getMessage().length() > 1000) {
-            logger.warn("Validation Warning: Message length ({}) exceeds 1000 characters!", newMessage.getMessage().length());
-        }
-
-        // Step 2: Attempt to save to database
         try {
-            logger.debug("Attempting to execute JPA save() method...");
             ContactMessage savedMessage = contactRepository.save(newMessage);
+            logger.info("SUCCESS: Contact message saved. ID: {}", savedMessage.getId());
 
-            logger.info("SUCCESS: Contact message saved successfully! Assigned Database ID: {}", savedMessage.getId());
-            return savedMessage;
+            // UPDATED: Developer-friendly message and data set explicitly to null!
+            ApiResponse successResponse = new ApiResponse(HttpStatus.CREATED.value(), "Data inserted successfully!", null);
+            return ResponseEntity.status(HttpStatus.CREATED).body(successResponse);
 
         } catch (Exception e) {
-            // Step 3: Handle errors (like duplicate emails or oversized strings)
-            logger.error("DATABASE ERROR: Failed to save the contact message. Cause: {}", e.getMessage());
-            throw new RuntimeException("Failed to submit contact message. Please ensure the email is unique and character limits are respected.", e);
+            logger.error("DATABASE ERROR: Failed to save message. Cause: {}", e.getMessage());
+            ApiResponse errorResponse = new ApiResponse(HttpStatus.BAD_REQUEST.value(), "Failed to insert data. Ensure unique constraints are met.", null);
+            return ResponseEntity.badRequest().body(errorResponse);
         }
     }
 }
