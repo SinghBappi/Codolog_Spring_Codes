@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Codolog - Courses</title>
+    <style>
+        .course-card {
+            border: 2px solid #02303A;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px;
+            cursor: pointer;
+            background-color: #f8f9fa;
+        }
+        .course-card:hover {
+            background-color: #e2e6ea;
+        }
+    </style>
+</head>
+<body>
+<h2>Welcome to Codolog Courses</h2>
+<p>Click on a course to start reading.</p>
+
+<div class="course-card" onclick="track('python_course_view')">
+    <h3>Python for Beginners</h3>
+    <p>Learn Python from scratch.</p>
+</div>
+
+<div class="course-card" onclick="track('java_course_view')">
+    <h3>Advanced Java</h3>
+    <p>Master Java Spring Boot and APIs.</p>
+</div>
+
+<div class="course-card" onclick="track('data_structures_view')">
+    <h3>Data Structures & Algorithms</h3>
+    <p>Crack your coding interviews.</p>
+</div>
+
+<br>
+<a href="/dashboard.html" target="_blank">Go to Analytics Dashboard</a>
+
+<script src="tracker.js"></script>
+</body>
+</html>

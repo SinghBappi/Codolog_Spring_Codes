@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<body>
+<h2>Analytics Dashboard</h2>
+<table border="1" id="eventsTable">
+    <tr>
+        <th>User ID</th>
+        <th>URL</th>
+        <th>Action</th>
+        <th>Time</th>
+    </tr>
+</table>
+
+<script>
+    // Update port to 8082
+    fetch('http://localhost:8082/api/v1/analytics/events')
+        .then(response => response.json())
+        .then(data => {
+            const table = document.getElementById('eventsTable');
+            data.forEach(event => {
+                table.innerHTML += `
+                        <tr>
+                            <td>${event.userId}</td>
+                            <td>${event.url}</td>
+                            <td>${event.actionEvent}</td> <td>${event.eventTimestamp}</td>
+                        </tr>
+                    `;
+            });
+        });
+</script>
+</body>
+</html>
