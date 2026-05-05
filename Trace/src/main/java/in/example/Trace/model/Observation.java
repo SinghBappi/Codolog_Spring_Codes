@@ -53,5 +53,4 @@ public class Observation {
 
     public void setEventTimestamp(LocalDateTime eventTimestamp) {
         this.eventTimestamp = eventTimestamp;
-    }
-}
+    }}
